@@ -12,6 +12,8 @@
   "dependencies": {
     "react": "18.2.0",
     "react-native": "0.74.1",
+    "react-native-permissions": "^4.1.5",
+    "react-native-tracking-transparency": "^0.1.2",
     "react-native-webview": "13.6.3"
   },
   "devDependencies": {
