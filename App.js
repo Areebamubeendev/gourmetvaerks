@@ -5,14 +5,16 @@
  * @format
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   ActivityIndicator,
   AppState,
+  BackHandler,
   Platform,
   SafeAreaView,
   StatusBar,
   StyleSheet,
+  Text,
   useColorScheme,
   View,
 } from 'react-native';
@@ -28,6 +30,8 @@ function App(){
   const isDarkMode = useColorScheme() === 'dark';
   const [isVisible, setIsVisible] = useState(true)
   const [permission, setPermission] = useState(true)
+  const [canGoBack, setCanGoBack] = useState(false)
+  const webRef = useRef()
 
   useEffect(()=>{
     if(Platform.OS == 'ios'){
@@ -38,7 +42,17 @@ function App(){
     }
     
   }, [])
-  
+
+  useEffect(() => {
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackutton,
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
 
   const checkPermission = ()=>{
     check(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY)
@@ -79,6 +93,17 @@ function App(){
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
+  const handleBackutton = () =>{
+    try{
+      webRef?.current?.goBack()
+      return true
+    }catch(error){
+      console.log('error', error)
+    }
+  }
+
+
+
 
 
   return (
@@ -90,12 +115,17 @@ function App(){
       <>{isVisible ? <View style={{height:'100%', justifyContent:'center', alignItems:'center'}}>
         <ActivityIndicator size={'large'}/>
         </View> : null}
-      <WebView 
+        {(Platform.OS == 'ios' && canGoBack) && <Text style={styles.goBack} onPress={()=>{handleBackutton()}}>Go Back</Text>}
+      <WebView
+        ref={webRef} 
         source={{uri: 'https://gourmetvaerkstedet.dk/app/'}} 
         style= {{...styles.container, flex:isVisible  ? 0 : 1, marginBottom: permission? 0 : '-40%'}}
         useWebView2={true}
         onLoad={()=> {setIsVisible(false)}}
-        thirdPartyCookiesEnabled={false}
+        onLoadProgress={({nativeEvent})=>{
+          setCanGoBack(nativeEvent.canGoBack)
+        }}
+        thirdPartyCookiaesEnabled={false}
         sharedCookiesEnabled={false}
         pullToRefreshEnabled={true}
         /></> 
@@ -141,6 +171,13 @@ const styles = StyleSheet.create({
     width:35,
     height:35,
     tintColor:'white'
+  },
+  goBack:{
+    color:'black',
+    textDecorationLine:'underline',
+    // textAlign:'right',
+    marginLeft:20,
+    marginBottom:10
   }
 });
 
