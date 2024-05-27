@@ -91,7 +91,7 @@ function App(){
         <ActivityIndicator size={'large'}/>
         </View> : null}
       <WebView 
-        source={{uri: 'https://gourmetvaerkstedet.dk/'}} 
+        source={{uri: 'https://gourmetvaerkstedet.dk/app/'}} 
         style= {{...styles.container, flex:isVisible  ? 0 : 1, marginBottom: permission? 0 : '-40%'}}
         useWebView2={true}
         onLoad={()=> {setIsVisible(false)}}
